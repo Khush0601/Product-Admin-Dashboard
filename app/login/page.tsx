@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
@@ -8,11 +8,17 @@ import { APP_CONFIG } from '../config/app.config';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isLoggedIn, checked } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (checked && isLoggedIn) {
+      router.replace('/products');
+    }
+  }, [checked, isLoggedIn, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +50,7 @@ export default function LoginPage() {
         image: data.image,
       });
 
-      router.push('/product');
+      router.push('/products');
     } catch (err: any) {
       const status = err?.status;
       if (status === 400 || status === 401 || status === 404) {
@@ -55,6 +61,18 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!checked) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#070b17] text-slate-300">
+        Loading...
+      </main>
+    );
+  }
+
+  if (isLoggedIn) {
+    return null;
   }
 
   return (
@@ -172,7 +190,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group inline-flex w-full items-center justify-center rounded-2xl border border-violet-300/30 bg-[linear-gradient(135deg,#8b5cf6,#3b82f6)] px-4 py-3 text-base font-semibold text-white shadow-[0_18px_35px_rgba(99,102,241,0.5)] transition hover:scale-[1.01] hover:shadow-[0_22px_40px_rgba(99,102,241,0.6)] disabled:cursor-not-allowed disabled:opacity-75"
+                  className="group cursor-pointer inline-flex w-full items-center justify-center rounded-2xl border border-violet-300/30 bg-[linear-gradient(135deg,#8b5cf6,#3b82f6)] px-4 py-3 text-base font-semibold text-white shadow-[0_18px_35px_rgba(99,102,241,0.5)] transition hover:scale-[1.01] hover:shadow-[0_22px_40px_rgba(99,102,241,0.6)] disabled:cursor-not-allowed disabled:opacity-75"
                 >
                   <span>{loading ? 'Signing in...' : 'Log in'}</span>
                   {!loading ? (
