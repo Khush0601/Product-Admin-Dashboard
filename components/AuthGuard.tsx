@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useEffect, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
   const { isLoggedIn, checked } = useAuth();
@@ -10,7 +10,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (checked && !isLoggedIn) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [checked, isLoggedIn, router]);
 

@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -27,6 +28,7 @@ type AuthContextType = {
   logout: () => void;
 };
 
+const AUTH_EXPIRED_EVENT = 'auth:expired';
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -35,20 +37,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    setUser(getUser());
+    const syncSession = () => {
+      setUser(getUser());
+      setChecked(true);
+    };
+
+    const timer = window.setTimeout(syncSession, 0);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleExpiredSession = () => {
+      clearSession();
+      setUser(null);
+      setChecked(true);
+      router.replace('/login');
+    };
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleExpiredSession);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpiredSession);
+  }, [router]);
+
+  const login = useCallback((token: string, userData: AuthUser) => {
+    saveSession(token, userData);
+    setUser(userData);
     setChecked(true);
   }, []);
 
-  const login = (token: string, userData: AuthUser) => {
-    saveSession(token, userData);
-    setUser(userData);
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
     clearSession();
     setUser(null);
+    setChecked(true);
     router.push('/login');
-  };
+  }, [router]);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -58,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
     }),
-    [user, checked]
+    [user, checked, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

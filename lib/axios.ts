@@ -39,7 +39,7 @@ api.interceptors.response.use(
       localStorage.removeItem('authUser');
 
       if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
+        window.dispatchEvent(new CustomEvent('auth:expired'));
       }
     }
 
