@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/products";
 import { getProductImage } from "@/lib/products";
 
@@ -13,6 +14,8 @@ export default function ProductTable({
   products: Product[];
   onDelete: (product: Product) => void;
 }) {
+  const router = useRouter();
+
   return (
     <div className="hidden overflow-x-auto md:block">
       <table className="w-full min-w-[760px] text-left text-sm">
@@ -30,7 +33,16 @@ export default function ProductTable({
           {products.map((product) => (
             <tr
               key={product.id}
-              className="border-b border-white/8 transition hover:bg-white/5"
+              role="link"
+              tabIndex={0}
+              onClick={() => router.push(`/products/${product.id}`)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  router.push(`/products/${product.id}`);
+                }
+              }}
+              className="cursor-pointer border-b border-white/8 outline-none transition hover:bg-white/5 focus:bg-white/8 focus:ring-2 focus:ring-inset focus:ring-cyan-300/60"
             >
               <td className="px-3 py-4">
                 <div className="flex items-center gap-3">
@@ -44,12 +56,9 @@ export default function ProductTable({
                       unoptimized
                     />
                   </div>
-                  <Link
-                    href={`/products/edit/${product.id}`}
-                    className="max-w-[230px] font-semibold text-white hover:text-cyan-200"
-                  >
+                  <span className="max-w-[230px] font-semibold text-white">
                     {product.title}
-                  </Link>
+                  </span>
                 </div>
               </td>
               <td className="px-3 py-4">
@@ -71,13 +80,19 @@ export default function ProductTable({
                   <Link
                     href={`/products/edit/${product.id}`}
                     aria-label={`Edit ${product.title}`}
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
                     className="icon-button"
                   >
                     <Pencil className="h-4 w-4" />
                   </Link>
                   <button
                     type="button"
-                    onClick={() => onDelete(product)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDelete(product);
+                    }}
+                    onKeyDown={(event) => event.stopPropagation()}
                     aria-label={`Delete ${product.title}`}
                     className="icon-button text-rose-200 hover:border-rose-300/30 hover:bg-rose-400/10 cursor-pointer"
                   >

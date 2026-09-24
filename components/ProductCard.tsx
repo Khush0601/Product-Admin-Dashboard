@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/products";
 import { getProductImage } from "@/lib/products";
 import { StockBadge } from "@/components/ProductTable";
@@ -14,12 +15,23 @@ export default function ProductCard({
   products: Product[];
   onDelete: (product: Product) => void;
 }) {
+  const router = useRouter();
+
   return (
     <div className="grid gap-3 md:hidden">
       {products.map((product) => (
         <article
           key={product.id}
-          className="rounded-2xl border border-white/10 bg-white/5 p-4"
+          role="link"
+          tabIndex={0}
+          onClick={() => router.push(`/products/${product.id}`)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              router.push(`/products/${product.id}`);
+            }
+          }}
+          className="cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-4 outline-none transition hover:border-white/20 hover:bg-white/8 focus:ring-2 focus:ring-cyan-300/60"
         >
           <div className="flex gap-3">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-white/10">
@@ -33,12 +45,9 @@ export default function ProductCard({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <Link
-                href={`/products/edit/${product.id}`}
-                className="font-semibold text-white hover:text-cyan-200"
-              >
+              <p className="font-semibold text-white">
                 {product.title}
-              </Link>
+              </p>
               <p className="mt-1 text-xs capitalize text-violet-200">
                 {product.category}
               </p>
@@ -56,13 +65,19 @@ export default function ProductCard({
               <Link
                 href={`/products/edit/${product.id}`}
                 aria-label={`Edit ${product.title}`}
+                onClick={(event) => event.stopPropagation()}
+                onKeyDown={(event) => event.stopPropagation()}
                 className="icon-button"
               >
                 <Pencil className="h-4 w-4" />
               </Link>
               <button
                 type="button"
-                onClick={() => onDelete(product)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(product);
+                }}
+                onKeyDown={(event) => event.stopPropagation()}
                 aria-label={`Delete ${product.title}`}
                 className="icon-button text-rose-200"
               >

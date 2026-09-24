@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   PackagePlus,
   SearchCheck,
@@ -8,7 +9,7 @@ import {
   UserRound,
   LogOut,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams} from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import ProductCard from "@/components/ProductCard";
 import ProductTable from "@/components/ProductTable";
@@ -263,13 +264,13 @@ function ProductsPageInner() {
             ) : null}
           </div>
           <div className="flex flex-wrap gap-3">
-            <a
+            <Link
               href="/products/add"
               className="inline-flex items-center gap-2 rounded-2xl border border-violet-300/30 bg-linear-to-r from-violet-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_25px_rgba(99,102,241,0.3)] hover:brightness-110"
             >
               <PackagePlus className="h-4 w-4" />
               Add product
-            </a>
+            </Link>
             <button
               type="button"
               onClick={logout}
