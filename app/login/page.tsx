@@ -51,12 +51,14 @@ export default function LoginPage() {
       });
 
       router.push('/products');
-    } catch (err: any) {
-      const status = err?.status;
+    } catch (err: unknown) {
+      const normalizedError = err as { status?: number; message?: string };
+      const status = normalizedError?.status;
+
       if (status === 400 || status === 401 || status === 404) {
         setError('Invalid username or password.');
       } else {
-        setError(err?.message || 'Login failed. Please try again.');
+        setError(normalizedError?.message || 'Login failed. Please try again.');
       }
     } finally {
       setLoading(false);
